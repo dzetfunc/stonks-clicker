@@ -5,6 +5,7 @@ import time
 from user import UserStats
 from milestones import show_milestone
 from leaderboard import Leaderboard
+import random
 
 mess_db = {}
 users_db = {}
@@ -44,9 +45,13 @@ with open("./content/welcome.txt") as f:
 with open("./content/help.txt") as f:
     HELP_MESSAGE = f.read()
 
+
 def make_leaderboard():
     res = Leaderboard(users_db, bot).dump()
-    return res  # "1. Ruslan Khaidurov: {}".format(list(users_db.values())[0].total_stonks)
+    return (
+        res  # "1. Ruslan Khaidurov: {}".format(list(users_db.values())[0].total_stonks)
+    )
+
 
 def update_user_wealth(user, cost, mess, tier):
     if user.total_stonks < cost:
@@ -75,16 +80,19 @@ def helpp(mess: Message):
 def welcome(mess: Message):
     bot.send_message(mess.chat.id, WELCOME_MESSAGE)
 
+
 @bot.message_handler(content_types=["text"])
 def handle_sticker(mess: Message):
     # INIT USER
     if mess.chat.id not in users_db:
         users_db[mess.chat.id] = UserStats(mess.chat.id)
-        users_db[mess.chat.id].set_name_surname(mess.from_user.first_name + " " + mess.from_user.last_name)
+        users_db[mess.chat.id].set_name_surname(
+            mess.from_user.first_name + " " + mess.from_user.last_name
+        )
     user = users_db[mess.chat.id]
 
     # STOP LIVE UPDATES
-    if mess.text.lower() == "stop displaying":
+    if mess.text.lower() == "stop displaying" or mess.text.lower() == 'стоп':
         okay_sure_msg = bot.reply_to(mess, "Okay, Sure!")
         mess_db[mess.chat.id] = okay_sure_msg.message_id
         if user.displaying:
@@ -112,13 +120,16 @@ def handle_sticker(mess: Message):
                         len(user.advanced),
                         user.advanced_level,
                         user.sps,
-                        user.update_shop()
+                        user.update_shop(),
                     ),
                     mess.chat.id,
                     cur_msg,
                 )
             except telebot.apihelper.ApiTelegramException:
-                bot.send_message(mess.chat.id, "МЫ ЗАКОЛЕБАЛИСЬ ДАВАТЬ ВАМ БАНКОВСКИЕ ВЫПИСКИ! ПОЖАЛУЙСТА СПРОСИТЕ ПОПОЗЖЕ!")
+                bot.send_message(
+                    mess.chat.id,
+                    "МЫ ЗАКОЛЕБАЛИСЬ ДАВАТЬ ВАМ БАНКОВСКИЕ ВЫПИСКИ! ПОЖАЛУЙСТА СПРОСИТЕ ПОПОЗЖЕ!",
+                )
                 user.displaying = False
                 break
             time.sleep(10)
@@ -144,7 +155,7 @@ def handle_sticker(mess: Message):
     # Tier 3
     elif mess.text.lower() == "купить брокера":
         if user.tier_available[3]:
-            update_user_wealth(user, 20000,  mess, 3)
+            update_user_wealth(user, 20000, mess, 3)
         else:
             bot.reply_to(mess, "Этот тип работяги ещё не разблокирован!")
     # Tier 4
@@ -231,12 +242,15 @@ def handle_sticker(mess: Message):
             user.total_stonks -= 1600000
             user.tier_level[7] += 1
 
-
-
     # Лидерборд
     elif mess.text.lower() == "лидерборд" or mess.text.lower() == "leaderboard":
         bot.reply_to(mess, make_leaderboard())
 
+    elif mess.text.lower().find("нахуй") != -1:
+        phrases = [":(", "("]
+        bot.reply_to(mess, random.choice(phrases))
+
+    
     else:
         return
     user.calc_sps()
@@ -244,4 +258,3 @@ def handle_sticker(mess: Message):
 
 if __name__ == "__main__":
     bot.polling()
-

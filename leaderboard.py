@@ -14,5 +14,5 @@ class Leaderboard:
         best_10 = Counter({user.name_surname: user.total_stonks for user in self.users.values()}).most_common(10)
         final_string = ""
         for i, (name, nstonks) in enumerate(best_10):
-            final_string += f"{i}. {name}: {nstonks}\n"
+            final_string += f"{i + 1}. {name}: {nstonks}\n"
         return final_string
