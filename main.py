@@ -1,11 +1,8 @@
 import telebot
 import os
-from telebot.types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
-import requests
+from telebot.types import Message
 import time
-import multiprocessing as mp
 from user import UserStats
-from showcases import *
 from milestones import show_milestone
 from leaderboard import Leaderboard
 
@@ -20,10 +17,12 @@ bot = telebot.TeleBot(token, threaded=True, num_threads=12)
 
 STATUS_TEMPLATE = """
 Stonks: {0},
-Нубы: {1},
-Увровень нубов: {2},
-Крутые брокеры: {3},
+Нанято Новичков: {1},
+Уровень Новичков: {2},
+
+Читателей Тинькофф Журнала: {3},
 Уровень крутых брокеров: {4}
+
 Доход в секунду: {5}
 
 **Магазин**:
@@ -66,10 +65,10 @@ def update_user_wealth(user, cost, mess, tier):
         user.total_stonks -= cost
         bot.reply_to(mess, "Вы купили нового брокера ранга {}!".format(tier))
 
+
 @bot.message_handler(commands=["help"])
 def helpp(mess: Message):
-    ss = '{"inline_keyboard":[[{"text":"supa", "callback_data": "fig"},{"text":"mario", "callback_data": "nafig"}]]}'
-    bot.send_message(mess.chat.id, "What should I do?", reply_markup=ss)
+    bot.send_message(mess.chat.id, HELP_MESSAGE)
 
 
 @bot.message_handler(commands=["start"])
@@ -145,27 +144,94 @@ def handle_sticker(mess: Message):
     # Tier 3
     elif mess.text.lower() == "купить брокера":
         if user.tier_available[3]:
-            update_user_wealth(user, 200000, mess, 3)
+            update_user_wealth(user, 20000,  mess, 3)
+        else:
+            bot.reply_to(mess, "Этот тип работяги ещё не разблокирован!")
+    # Tier 4
+    elif mess.text.lower() == "купить волка":
+        if user.tier_available[4]:
+            update_user_wealth(user, 50000, mess, 3)
+        else:
+            bot.reply_to(mess, "Этот тип работяги ещё не разблокирован!")
+    # Tier 5
+    elif mess.text.lower() == "купить нейросеточку":
+        if user.tier_available[5]:
+            update_user_wealth(user, 100000, mess, 3)
+        else:
+            bot.reply_to(mess, "Этот тип работяги ещё не разблокирован!")
+    # Tier 6
+    elif mess.text.lower() == "купить шамана":
+        if user.tier_available[6]:
+            update_user_wealth(user, 500000, mess, 3)
+        else:
+            bot.reply_to(mess, "Этот тип работяги ещё не разблокирован!")
+    # Tier 7
+    elif mess.text.lower() == "купить иллюминатов":
+        if user.tier_available[7]:
+            update_user_wealth(user, 1200000, mess, 3)
         else:
             bot.reply_to(mess, "Этот тип работяги ещё не разблокирован!")
 
     # UPGRADES
     # Tier 1
-    elif mess.text.lower() == "апгрейд нуба":
+    elif mess.text.lower() == "апгрейд пети":
         if user.total_stonks < 10000:
             bot.reply_to(mess, "Недостаточно Стонксов!")
         else:
-            bot.reply_to(mess, "Вы апгрейднули нуба!")
+            bot.reply_to(mess, "Вы апгрейднули Петю!")
             user.total_stonks -= 10000
             user.noob_level += 1
     # Tier 2
-    elif mess.text.lower() == "апгрейд крутого брокера":
+    elif mess.text.lower() == "апгрейд васи":
         if user.total_stonks < 100000:
             bot.reply_to(mess, "Недостаточно Стонксов!")
         else:
             bot.reply_to(mess, "Вы апгрейднули нуба!")
             user.total_stonks -= 100000
             user.advanced_level += 1
+
+    elif mess.text.lower() == "апгрейд брокера":
+        if user.total_stonks < 200000:
+            bot.reply_to(mess, "Недостаточно Стонксов!")
+        else:
+            bot.reply_to(mess, "Вы апгрейднули Брокера!")
+            user.total_stonks -= 200000
+            user.tier_level[3] += 1
+
+    elif mess.text.lower() == "апгрейд волка":
+        if user.total_stonks < 500000:
+            bot.reply_to(mess, "Недостаточно Стонксов!")
+        else:
+            bot.reply_to(mess, "Вы апгрейднули Брокера!")
+            user.total_stonks -= 500000
+            user.tier_level[4] += 1
+
+    elif mess.text.lower() == "апгрейд нейросеточка":
+
+        if user.total_stonks < 800000:
+            bot.reply_to(mess, "Недостаточно Стонксов!")
+        else:
+            bot.reply_to(mess, "Вы апгрейднули Нейросеточку!")
+            user.total_stonks -= 800000
+            user.tier_level[5] += 1
+
+    elif mess.text.lower() == "апгрейд шамана":
+        if user.total_stonks < 1200000:
+            bot.reply_to(mess, "Недостаточно Стонксов!")
+        else:
+            bot.reply_to(mess, "Вы апгрейднули шамана!")
+            user.total_stonks -= 1200000
+            user.tier_level[6] += 1
+
+    elif mess.text.lower() == "апгрейд иллюминатов":
+        if user.total_stonks < 1600000:
+            bot.reply_to(mess, "Недостаточно Стонксов!")
+        else:
+            bot.reply_to(mess, "Вы апгрейднули Иллюминатов!")
+            user.total_stonks -= 1600000
+            user.tier_level[7] += 1
+
+
 
     # Лидерборд
     elif mess.text.lower() == "лидерборд" or mess.text.lower() == "leaderboard":
@@ -178,3 +244,4 @@ def handle_sticker(mess: Message):
 
 if __name__ == "__main__":
     bot.polling()
+
