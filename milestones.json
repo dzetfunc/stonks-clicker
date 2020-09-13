@@ -1,0 +1,9 @@
+{
+  "20000": "petya_tier3",
+  "50000": "petya_tier4",
+  "100000": "petya_tier5",
+  "500000": "petya_tier6",
+  "1200000": "petya_tier7",
+  "90": "debug",
+  "5000": "debug2"
+}
